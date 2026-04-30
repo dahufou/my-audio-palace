@@ -63,6 +63,21 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        display: ["'Cormorant Garamond'", "Times New Roman", "serif"],
+        sans: ["Karla", "system-ui", "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-gold": "var(--gradient-gold)",
+        "gradient-onyx": "var(--gradient-onyx)",
+        "gradient-spotlight": "var(--gradient-spotlight)",
+        "gradient-fade-bottom": "var(--gradient-fade-bottom)",
+      },
+      boxShadow: {
+        gold: "var(--shadow-gold)",
+        deep: "var(--shadow-deep)",
+        album: "var(--shadow-album)",
+      },
       keyframes: {
         "accordion-down": {
           from: {
