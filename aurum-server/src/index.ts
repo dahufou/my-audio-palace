@@ -17,7 +17,7 @@ async function main() {
   app.get("/", async () => ({
     name: "aurum-server",
     version: "0.1.0",
-    docs: "https://github.com/<toi>/<repo>/tree/main/aurum-server",
+    docs: "https://github.com/dahufou/my-audio-palace/tree/main/aurum-server",
   }));
 
   try {
