@@ -11,19 +11,25 @@ Serveur audio Roon-like pour Debian / LXC.
 
 ## Installation rapide sur ton LXC Debian
 
+**Option 1 — Cloner tout le repo (recommandé) :**
+
 ```bash
-# Dans ton LXC Debian (en root)
-curl -fsSL https://raw.githubusercontent.com/<toi>/<repo>/main/aurum-server/install.sh -o install.sh
+sudo apt-get update && sudo apt-get install -y git
+git clone https://github.com/dahufou/my-audio-palace.git
+cd my-audio-palace/aurum-server
 chmod +x install.sh
 sudo ./install.sh
 ```
 
-Ou, si tu as déjà cloné le repo :
+**Option 2 — Récupérer juste le script :**
 
 ```bash
-cd aurum-server
+curl -fsSL https://raw.githubusercontent.com/dahufou/my-audio-palace/main/aurum-server/install.sh -o install.sh
+chmod +x install.sh
 sudo ./install.sh
 ```
+
+> ⚠️ L'option 2 ne marche que partiellement pour l'instant : `install.sh` a besoin du dossier `aurum-server/` complet (code source, `package.json`, `src/`, etc.) pour build. **Préfère l'option 1.**
 
 Le script est **interactif** : il te demandera le chemin de ta musique, le port d'écoute,
 créera la base PostgreSQL, l'utilisateur système `aurum`, et le service systemd.
