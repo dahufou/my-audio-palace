@@ -1,0 +1,24 @@
+[Unit]
+Description=Aurum Server (Roon-like audio server)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aurum
+Group=aurum
+WorkingDirectory=/opt/aurum
+EnvironmentFile=/etc/aurum/aurum.env
+ExecStart=/usr/bin/node /opt/aurum/dist/index.js
+Restart=on-failure
+RestartSec=3
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/cache/aurum /var/log/aurum
+ReadOnlyPaths=/opt/aurum
+
+[Install]
+WantedBy=multi-user.target
