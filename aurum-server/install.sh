@@ -87,7 +87,7 @@ say "Installation des paquets système (apt)…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y --no-install-recommends \
-  curl ca-certificates gnupg openssl \
+  curl ca-certificates gnupg openssl rsync \
   ffmpeg \
   postgresql postgresql-contrib \
   avahi-daemon libnss-mdns \
@@ -120,18 +120,30 @@ chown -R "${APP_USER}:${APP_USER}" "${CACHE_DIR}" "${LOG_DIR}"
 
 if [[ ! -d "${MUSIC_PATH}" ]]; then
   warn "${MUSIC_PATH} n'existe pas — je le crée (vide)."
-  mkdir -p "${MUSIC_PATH}"
+  mkdir -p "${MUSIC_PATH}" || warn "Impossible de créer ${MUSIC_PATH} (read-only ?). On continue."
 fi
-# On veut juste pouvoir lire la musique
-chmod a+rx "${MUSIC_PATH}" || true
+# On veut juste pouvoir lire la musique. Si c'est un montage read-only (NFS/SMB/bind LXC),
+# on n'essaie pas de changer les permissions.
+if [[ -w "${MUSIC_PATH}" ]]; then
+  chmod a+rx "${MUSIC_PATH}" || true
+else
+  warn "${MUSIC_PATH} est en lecture seule — on ne touche pas aux permissions."
+fi
 
 #-------------------------------------------------------------------------------
 # Copie du code + build
 #-------------------------------------------------------------------------------
 say "Copie du code dans ${APP_DIR}…"
-rsync -a --delete \
-  --exclude node_modules --exclude dist \
-  "${SCRIPT_DIR}/" "${APP_DIR}/"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --delete \
+    --exclude node_modules --exclude dist \
+    "${SCRIPT_DIR}/" "${APP_DIR}/"
+else
+  # Fallback sans rsync
+  rm -rf "${APP_DIR}/src" "${APP_DIR}/systemd" "${APP_DIR}/sql" 2>/dev/null || true
+  cp -a "${SCRIPT_DIR}/." "${APP_DIR}/"
+  rm -rf "${APP_DIR}/node_modules" "${APP_DIR}/dist" 2>/dev/null || true
+fi
 
 say "npm install + build…"
 cd "${APP_DIR}"
