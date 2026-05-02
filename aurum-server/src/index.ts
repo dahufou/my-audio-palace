@@ -5,7 +5,7 @@ import { log } from "./log.js";
 import { healthRoutes } from "./routes/health.js";
 
 async function main() {
-  const app = Fastify({ logger: log });
+  const app = Fastify({ loggerInstance: log });
 
   await app.register(cors, {
     origin: true,
