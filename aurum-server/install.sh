@@ -87,7 +87,7 @@ say "Installation des paquets système (apt)…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y --no-install-recommends \
-  curl ca-certificates gnupg openssl \
+  curl ca-certificates gnupg openssl rsync \
   ffmpeg \
   postgresql postgresql-contrib \
   avahi-daemon libnss-mdns \
