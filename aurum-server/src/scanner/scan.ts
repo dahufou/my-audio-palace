@@ -1,7 +1,7 @@
 import { stat, readdir, mkdir, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
-import { parseFile, selectCover } from "music-metadata";
+import { selectCover, type IAudioMetadata, type IOptions } from "music-metadata";
 import { query } from "../db.js";
 import { config } from "../config.js";
 import { log } from "../log.js";
@@ -13,6 +13,15 @@ const AUDIO_EXTS = new Set([
 const COVER_NAMES = ["cover", "folder", "front", "albumart", "album"];
 const COVER_EXTS = [".jpg", ".jpeg", ".png", ".webp"];
 const COVERS_DIR = path.join("/var/cache/aurum", "covers");
+
+type ParseFile = (filePath: string, options?: IOptions) => Promise<IAudioMetadata>;
+
+async function parseAudioFile(filePath: string, options?: IOptions): Promise<IAudioMetadata> {
+  const mm = await import("music-metadata");
+  const parseFile = (mm as unknown as { parseFile?: ParseFile }).parseFile;
+  if (!parseFile) throw new Error("music-metadata parseFile export is unavailable in this Node runtime");
+  return parseFile(filePath, options);
+}
 
 export interface ScanStats {
   scanned: number;
@@ -121,7 +130,7 @@ async function extractEmbeddedCover(
   albumId: string,
 ): Promise<{ path: string; mime: string } | null> {
   try {
-    const meta = await parseFile(filePath, { skipCovers: false });
+    const meta = await parseAudioFile(filePath, { skipCovers: false });
     const cover = selectCover(meta.common.picture);
     if (!cover) return null;
     await ensureCoversDir();
@@ -163,7 +172,7 @@ export async function indexFile(
 
   let meta;
   try {
-    meta = await parseFile(filePath, { skipCovers: true, duration: true });
+    meta = await parseAudioFile(filePath, { skipCovers: true, duration: true });
   } catch (err) {
     log.warn({ filePath, err }, "metadata parse failed");
     return "error";
