@@ -115,9 +115,9 @@ const ArtistsPage = () => {
                 {list.length}
               </span>
             </div>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1">
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10 gap-x-3 gap-y-6">
               {list.map((a) => (
-                <ArtistRow key={a.id} artist={a} />
+                <ArtistTile key={a.id} artist={a} />
               ))}
             </div>
           </section>
@@ -125,9 +125,9 @@ const ArtistsPage = () => {
 
         {/* Flat (when sorted by albums/tracks) */}
         {!grouped && artists.data && (
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1">
+          <div className="mt-8 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10 gap-x-3 gap-y-6">
             {filtered.map((a) => (
-              <ArtistRow key={a.id} artist={a} />
+              <ArtistTile key={a.id} artist={a} />
             ))}
           </div>
         )}
@@ -136,22 +136,53 @@ const ArtistsPage = () => {
   );
 };
 
-function ArtistRow({ artist }: { artist: ArtistSummary }) {
+// Deterministic hue from artist id — gives each artist a stable color
+function hueFromId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return h % 360;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function ArtistTile({ artist }: { artist: ArtistSummary }) {
+  const hue = hueFromId(artist.id);
+  const bg = `linear-gradient(135deg, hsl(${hue} 45% 22%) 0%, hsl(${(hue + 40) % 360} 55% 14%) 100%)`;
+
   return (
     <Link
       to={`/library/artist/${artist.id}`}
-      className="group flex items-center justify-between gap-3 px-3 py-2.5 rounded-sm hover:bg-card/60 transition-colors border-b border-border/30"
+      className="group block animate-fade-up text-center"
     >
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="h-8 w-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:bg-primary/10 transition-colors">
-          <Mic2 className="h-3.5 w-3.5" />
+      <div
+        className="relative aspect-square overflow-hidden rounded-full bg-muted shadow-album mx-auto transition-transform duration-500 group-hover:scale-[1.04]"
+        style={{ background: bg }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span
+            className="font-display text-2xl md:text-3xl"
+            style={{ color: `hsl(${hue} 60% 88%)` }}
+          >
+            {initials(artist.name)}
+          </span>
         </div>
-        <div className="min-w-0">
-          <div className="text-sm truncate group-hover:text-primary transition-colors">{artist.name}</div>
-        </div>
+        <div
+          className="absolute inset-0 rounded-full ring-1 ring-inset transition-colors"
+          style={{ borderColor: `hsl(${hue} 60% 60% / 0.25)` }}
+        />
       </div>
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70 tabular-nums shrink-0">
-        {toNum(artist.albums_count)} alb · {toNum(artist.tracks_count)} pistes
+      <div className="mt-2 px-1">
+        <div className="text-[13px] font-medium leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+          {artist.name}
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70 mt-0.5 tabular-nums">
+          {toNum(artist.albums_count)} alb · {toNum(artist.tracks_count)} pistes
+        </div>
       </div>
     </Link>
   );
