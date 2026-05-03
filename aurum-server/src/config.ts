@@ -11,6 +11,10 @@ const Schema = z.object({
   FFMPEG_PATH: z.string().default("/usr/bin/ffmpeg"),
   TRANSCODE_CACHE: z.string().default("/var/cache/aurum/transcode"),
   LOG_LEVEL: z.string().default("info"),
+  // Image providers (tous optionnels, fallback sur sources libres)
+  SPOTIFY_CLIENT_ID: z.string().optional(),
+  SPOTIFY_CLIENT_SECRET: z.string().optional(),
+  LASTFM_API_KEY: z.string().optional(),
 });
 
 const parsed = Schema.safeParse(process.env);
