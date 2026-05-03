@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Library, Disc3, Mic2, Heart, Radio, ListMusic, Sparkles } from "lucide-react";
+import { Home, Disc3, Mic2, Heart, ListMusic } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,16 +14,14 @@ import {
 } from "@/components/ui/sidebar";
 
 const browse = [
-  { title: "Discover", url: "/", icon: Sparkles },
-  { title: "Albums", url: "/albums", icon: Disc3 },
-  { title: "Artists", url: "/artists", icon: Mic2 },
-  { title: "Library", url: "/library", icon: Library },
-  { title: "Radio", url: "/radio", icon: Radio },
+  { title: "Accueil", url: "/", icon: Home },
+  { title: "Albums", url: "/library", icon: Disc3 },
+  { title: "Artistes", url: "/artists", icon: Mic2 },
 ];
 
 const personal = [
-  { title: "Favourites", url: "/favourites", icon: Heart },
-  { title: "Queue", url: "/queue", icon: ListMusic },
+  { title: "Favoris", url: "/favourites", icon: Heart },
+  { title: "File d'attente", url: "/queue", icon: ListMusic },
 ];
 
 export function AppSidebar() {
