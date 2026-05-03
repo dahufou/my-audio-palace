@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/library/album/:id" element={<LibraryAlbumPage />} />
             <Route path="/library/artist/:id" element={<LibraryArtistPage />} />
+            <Route path="/artists" element={<ArtistsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
