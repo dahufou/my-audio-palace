@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, type ArtistSummary } from "@/lib/aurum";
 import { Input } from "@/components/ui/input";
-import { Search, Mic2 } from "lucide-react";
+import { Search } from "lucide-react";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;
