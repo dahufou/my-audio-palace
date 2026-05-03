@@ -3,8 +3,11 @@
 // Toutes ces APIs sont gratuites, sans clé, et CORS-friendly.
 //
 // Cache : localStorage avec TTL (30j succès, 7j échec). Déduplication des
-// requêtes en vol. (TODO: ajouter un endpoint /artists/:id/image côté Aurum
-// pour partager le cache entre appareils.)
+// requêtes en vol. Throttling par source via lib/rateLimit.
+// (TODO: ajouter un endpoint /artists/:id/image côté Aurum pour partager
+// le cache entre appareils.)
+
+import { mbLimiter, itunesLimiter, deezerLimiter } from "@/lib/rateLimit";
 
 const CACHE_KEY = "aurum_artist_images_v2";
 const TTL_OK = 1000 * 60 * 60 * 24 * 30; // 30 jours
@@ -45,60 +48,62 @@ export function getCachedArtistImage(name: string): string | null | undefined {
 // ---------- Sources ----------
 
 async function fromDeezer(name: string): Promise<string | null> {
-  try {
-    const r = await fetch(
-      `https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=1&output=json`,
-      { mode: "cors" },
-    );
-    if (!r.ok) return null;
-    const j = (await r.json()) as {
-      data?: Array<{ name: string; picture_xl?: string; picture_big?: string }>;
-    };
-    const hit = j.data?.[0];
-    const pic = hit?.picture_xl || hit?.picture_big || null;
-    if (!pic) return null;
-    // Filtre les placeholders Deezer
-    if (pic.includes("/artist//") || pic.endsWith("/artist/")) return null;
-    return pic;
-  } catch {
-    return null;
-  }
+  return deezerLimiter.run(async () => {
+    try {
+      const r = await fetch(
+        `https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=1&output=json`,
+        { mode: "cors" },
+      );
+      if (!r.ok) return null;
+      const j = (await r.json()) as {
+        data?: Array<{ name: string; picture_xl?: string; picture_big?: string }>;
+      };
+      const hit = j.data?.[0];
+      const pic = hit?.picture_xl || hit?.picture_big || null;
+      if (!pic) return null;
+      if (pic.includes("/artist//") || pic.endsWith("/artist/")) return null;
+      return pic;
+    } catch {
+      return null;
+    }
+  });
 }
 
 async function fromITunes(name: string): Promise<string | null> {
-  try {
-    const r = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=musicArtist&limit=1`,
-      { mode: "cors" },
-    );
-    if (!r.ok) return null;
-    const j = (await r.json()) as {
-      results?: Array<{ artistLinkUrl?: string; artworkUrl100?: string }>;
-    };
-    // iTunes ne donne pas d'image artiste directement → on prend une cover
-    // d'album du même artiste comme proxy (mieux que rien).
-    const hit = j.results?.[0];
-    if (!hit?.artistLinkUrl) return null;
-    const r2 = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=album&limit=1`,
-      { mode: "cors" },
-    );
-    if (!r2.ok) return null;
-    const j2 = (await r2.json()) as { results?: Array<{ artworkUrl100?: string }> };
-    const art = j2.results?.[0]?.artworkUrl100;
-    if (!art) return null;
-    return art.replace("100x100bb", "600x600bb");
-  } catch {
-    return null;
-  }
+  return itunesLimiter.run(async () => {
+    try {
+      const r = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=musicArtist&limit=1`,
+        { mode: "cors" },
+      );
+      if (!r.ok) return null;
+      const j = (await r.json()) as {
+        results?: Array<{ artistLinkUrl?: string; artworkUrl100?: string }>;
+      };
+      const hit = j.results?.[0];
+      if (!hit?.artistLinkUrl) return null;
+      const r2 = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=album&limit=1`,
+        { mode: "cors" },
+      );
+      if (!r2.ok) return null;
+      const j2 = (await r2.json()) as { results?: Array<{ artworkUrl100?: string }> };
+      const art = j2.results?.[0]?.artworkUrl100;
+      if (!art) return null;
+      return art.replace("100x100bb", "600x600bb");
+    } catch {
+      return null;
+    }
+  });
 }
 
 async function fromMusicBrainzWikipedia(name: string): Promise<string | null> {
   try {
-    // 1. Recherche MBID
-    const mb = await fetch(
-      `https://musicbrainz.org/ws/2/artist?query=${encodeURIComponent(`artist:"${name}"`)}&limit=1&fmt=json`,
-      { mode: "cors", headers: { Accept: "application/json" } },
+    const mb = await mbLimiter.run(() =>
+      fetch(
+        `https://musicbrainz.org/ws/2/artist?query=${encodeURIComponent(`artist:"${name}"`)}&limit=1&fmt=json`,
+        { mode: "cors", headers: { Accept: "application/json" } },
+      ),
     );
     if (!mb.ok) return null;
     const mbj = (await mb.json()) as {
@@ -107,10 +112,11 @@ async function fromMusicBrainzWikipedia(name: string): Promise<string | null> {
     const artist = mbj.artists?.[0];
     if (!artist) return null;
 
-    // 2. Récupère relations (Wikipedia/Wikidata)
-    const rel = await fetch(
-      `https://musicbrainz.org/ws/2/artist/${artist.id}?inc=url-rels&fmt=json`,
-      { mode: "cors", headers: { Accept: "application/json" } },
+    const rel = await mbLimiter.run(() =>
+      fetch(
+        `https://musicbrainz.org/ws/2/artist/${artist.id}?inc=url-rels&fmt=json`,
+        { mode: "cors", headers: { Accept: "application/json" } },
+      ),
     );
     if (!rel.ok) return null;
     const relj = (await rel.json()) as {
