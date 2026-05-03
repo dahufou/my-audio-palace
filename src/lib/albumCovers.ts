@@ -4,7 +4,7 @@
 // Cache localStorage 30j succès / 7j échec. Throttling par source.
 
 import { aurum } from "@/lib/aurum";
-import { deezerLimiter, itunesLimiter, caaLimiter, mbLimiter } from "@/lib/rateLimit";
+import { deezerLimiter, itunesLimiter, caaLimiter } from "@/lib/rateLimit";
 
 const CACHE_KEY = "aurum_album_covers_v1";
 const TTL_OK = 1000 * 60 * 60 * 24 * 30;
