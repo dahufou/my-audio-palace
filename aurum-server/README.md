@@ -97,6 +97,29 @@ curl -X POST -H "X-Bridge-Token: $TOKEN" http://127.0.0.1:4477/library/scan
 Priorité : `cover.jpg` / `folder.jpg` / `front.jpg` (jpg/png/webp) **dans le dossier de l'album**.
 Sinon, on extrait la cover embarquée dans les tags vers `/var/cache/aurum/covers/<albumId>.<ext>`.
 
+### Photos d'artistes & pochettes manquantes
+
+Aurum cache dans sa DB les images récupérées depuis des sources publiques :
+
+| Source       | Artistes | Albums | Clé requise |
+|--------------|:--:|:--:|:--:|
+| Spotify      | ✅ | ✅ | `SPOTIFY_CLIENT_ID` + `SPOTIFY_CLIENT_SECRET` |
+| Deezer       | ✅ | ✅ | — |
+| Last.fm      | ✅ |    | `LASTFM_API_KEY` |
+| Wikipedia    | ✅ |    | — |
+| iTunes       | ✅ | ✅ | — |
+| MusicBrainz + CAA | ✅ | ✅ | — |
+
+Toutes les clés sont **optionnelles** ; sans clé, le serveur utilise les sources libres
+(Deezer, Wikipedia, iTunes, MusicBrainz). Active Spotify pour la meilleure couverture.
+
+Endpoints exposés :
+- `GET /artists/:id/image` → 302 vers l'URL externe (cache 90j)
+- `GET /albums/:id/external-cover` → 302 idem (utilisé seulement si pas de cover locale)
+
+Cache négatif : 7 jours (on retente).
+
+
 ## Accès distant
 
 Une fois Aurum Server qui tourne et écoute sur `127.0.0.1:4477`, tu installeras
