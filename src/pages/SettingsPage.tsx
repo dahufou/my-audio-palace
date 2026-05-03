@@ -660,13 +660,27 @@ export default function SettingsPage() {
           {/* NOTIFICATIONS / SHORTCUTS */}
           <TabsContent value="shortcuts" className="mt-6 space-y-6">
             <Section title="Notifications">
-              <Row label="Notifications système">
-                <Switch checked={settings.showOsNotifications} onCheckedChange={set("showOsNotifications")} />
+              <Row label="Notifications système" hint="Demande la permission au navigateur si nécessaire.">
+                <Switch
+                  checked={settings.showOsNotifications}
+                  onCheckedChange={async (v) => {
+                    set("showOsNotifications")(v);
+                    if (v && "Notification" in window && Notification.permission === "default") {
+                      const res = await Notification.requestPermission();
+                      if (res !== "granted") {
+                        toast.error("Permission refusée par le navigateur");
+                        set("showOsNotifications")(false);
+                      } else {
+                        toast.success("Notifications activées");
+                      }
+                    }
+                  }}
+                />
               </Row>
               <Row label="Notifier au changement de titre">
                 <Switch checked={settings.notifyOnTrackChange} onCheckedChange={set("notifyOnTrackChange")} />
               </Row>
-              <Row label="Touches média du clavier">
+              <Row label="Touches média du clavier" hint="Play/pause/next/prev sur clavier multimédia ou Bluetooth.">
                 <Switch checked={settings.mediaKeysEnabled} onCheckedChange={set("mediaKeysEnabled")} />
               </Row>
             </Section>
