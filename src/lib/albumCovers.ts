@@ -1,9 +1,10 @@
 // Récupère une pochette d'album avec cache + cascade.
 // Priorité : Aurum local (/covers/:id si has_cover) → Deezer → iTunes → Cover Art Archive.
 //
-// Cache localStorage 30j succès / 7j échec.
+// Cache localStorage 30j succès / 7j échec. Throttling par source.
 
 import { aurum } from "@/lib/aurum";
+import { deezerLimiter, itunesLimiter, caaLimiter, mbLimiter } from "@/lib/rateLimit";
 
 const CACHE_KEY = "aurum_album_covers_v1";
 const TTL_OK = 1000 * 60 * 60 * 24 * 30;
