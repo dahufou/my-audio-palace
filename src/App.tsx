@@ -7,6 +7,9 @@ import { PlayerProvider } from "@/context/PlayerContext";
 import Index from "./pages/Index.tsx";
 import AlbumsPage from "./pages/AlbumsPage.tsx";
 import AlbumPage from "./pages/AlbumPage.tsx";
+import LibraryPage from "./pages/LibraryPage.tsx";
+import LibraryAlbumPage from "./pages/LibraryAlbumPage.tsx";
+import LibraryArtistPage from "./pages/LibraryArtistPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/albums" element={<AlbumsPage />} />
             <Route path="/album/:id" element={<AlbumPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+            <Route path="/library/album/:id" element={<LibraryAlbumPage />} />
+            <Route path="/library/artist/:id" element={<LibraryArtistPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,0 +1,152 @@
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { AppLayout } from "@/components/AppLayout";
+import { aurum, getAurumBase, setAurumBase, type AlbumSummary } from "@/lib/aurum";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ImageOff, Search, Server } from "lucide-react";
+
+const LibraryPage = () => {
+  const [q, setQ] = useState("");
+  const [base, setBase] = useState(getAurumBase());
+  const [editing, setEditing] = useState(false);
+
+  const stats = useQuery({
+    queryKey: ["aurum", "stats", base],
+    queryFn: () => aurum.stats(),
+    retry: 0,
+  });
+
+  const albums = useQuery({
+    queryKey: ["aurum", "albums", q, base],
+    queryFn: () => aurum.albums({ q: q || undefined, limit: 200 }),
+    retry: 0,
+  });
+
+  return (
+    <AppLayout>
+      <div className="px-6 md:px-10 py-10 pb-16">
+        <div className="border-b border-border pb-5">
+          <div className="text-[10px] uppercase tracking-[0.35em] text-primary">Aurum Server</div>
+          <h1 className="font-display text-5xl md:text-6xl mt-1">Library</h1>
+          <p className="text-muted-foreground mt-2 max-w-xl">
+            Live from your home server — every album indexed, every cover served.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Server className="h-4 w-4 text-primary" />
+              {editing ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setAurumBase(base);
+                    setEditing(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Input
+                    value={base}
+                    onChange={(e) => setBase(e.target.value)}
+                    className="h-8 w-72"
+                  />
+                  <Button size="sm" type="submit">Save</Button>
+                </form>
+              ) : (
+                <>
+                  <span className="font-mono text-foreground">{base}</span>
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="text-xs uppercase tracking-widest text-primary hover:underline"
+                  >
+                    change
+                  </button>
+                </>
+              )}
+            </div>
+
+            {stats.data && (
+              <div className="flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                <span><b className="text-foreground">{stats.data.artists}</b> artists</span>
+                <span><b className="text-foreground">{stats.data.albums}</b> albums</span>
+                <span><b className="text-foreground">{stats.data.tracks}</b> tracks</span>
+              </div>
+            )}
+            {stats.isError && (
+              <span className="text-xs text-destructive">
+                Cannot reach server. Check URL & that you're on the same network.
+              </span>
+            )}
+          </div>
+
+          <div className="mt-5 relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search albums or artists..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        {albums.isLoading && (
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square bg-muted rounded-sm" />
+                <div className="h-4 bg-muted mt-3 w-3/4 rounded-sm" />
+                <div className="h-3 bg-muted mt-2 w-1/2 rounded-sm" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {albums.data && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 mt-10">
+            {albums.data.items.map((a) => (
+              <LiveAlbumCard key={a.id} album={a} />
+            ))}
+            {albums.data.items.length === 0 && (
+              <p className="text-muted-foreground col-span-full">No albums match.</p>
+            )}
+          </div>
+        )}
+      </div>
+    </AppLayout>
+  );
+};
+
+function LiveAlbumCard({ album }: { album: AlbumSummary }) {
+  return (
+    <Link to={`/library/album/${album.id}`} className="group block animate-fade-up">
+      <div className="relative aspect-square overflow-hidden rounded-sm shadow-album bg-muted">
+        {album.has_cover ? (
+          <img
+            src={aurum.coverUrl(album.id)}
+            alt={`${album.title} by ${album.artist_name}`}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        )}
+      </div>
+      <div className="mt-3">
+        <div className="font-display text-lg leading-tight line-clamp-1">{album.title}</div>
+        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+          {album.artist_name}
+          {album.year ? <> · <span className="text-muted-foreground/70">{album.year}</span></> : null}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export default LibraryPage;
