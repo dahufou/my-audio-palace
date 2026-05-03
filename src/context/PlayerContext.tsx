@@ -15,6 +15,12 @@ type PlayerCtx = {
   prev: () => void;
   seek: (ratio: number) => void;
   setVolume: (v: number) => void;
+  addToQueue: (tracks: Track | Track[]) => void;
+  playNext: (tracks: Track | Track[]) => void;
+  removeFromQueue: (index: number) => void;
+  clearQueue: () => void;
+  jumpTo: (index: number) => void;
+  reorder: (from: number, to: number) => void;
 };
 
 const Ctx = createContext<PlayerCtx | null>(null);
@@ -103,9 +109,74 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setVolume = useCallback((v: number) => setVolumeState(Math.max(0, Math.min(1, v))), []);
 
+  const addToQueue = useCallback((tracks: Track | Track[]) => {
+    const arr = Array.isArray(tracks) ? tracks : [tracks];
+    setQueue((q) => {
+      if (q.length === 0) {
+        setIndex(0);
+        setIsPlaying(true);
+        return arr;
+      }
+      return [...q, ...arr];
+    });
+  }, []);
+
+  const playNext = useCallback((tracks: Track | Track[]) => {
+    const arr = Array.isArray(tracks) ? tracks : [tracks];
+    setQueue((q) => {
+      if (q.length === 0) {
+        setIndex(0);
+        setIsPlaying(true);
+        return arr;
+      }
+      const copy = [...q];
+      copy.splice(index + 1, 0, ...arr);
+      return copy;
+    });
+  }, [index]);
+
+  const removeFromQueue = useCallback((i: number) => {
+    setQueue((q) => {
+      const copy = q.filter((_, idx) => idx !== i);
+      setIndex((cur) => {
+        if (i < cur) return cur - 1;
+        if (i === cur) return Math.min(cur, copy.length - 1);
+        return cur;
+      });
+      return copy;
+    });
+  }, []);
+
+  const clearQueue = useCallback(() => {
+    setQueue([]);
+    setIndex(0);
+    setIsPlaying(false);
+  }, []);
+
+  const jumpTo = useCallback((i: number) => {
+    setIndex(i);
+    setIsPlaying(true);
+  }, []);
+
+  const reorder = useCallback((from: number, to: number) => {
+    setQueue((q) => {
+      if (from === to || from < 0 || to < 0 || from >= q.length || to >= q.length) return q;
+      const copy = [...q];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      setIndex((cur) => {
+        if (cur === from) return to;
+        if (from < cur && to >= cur) return cur - 1;
+        if (from > cur && to <= cur) return cur + 1;
+        return cur;
+      });
+      return copy;
+    });
+  }, []);
+
   const value = useMemo(
-    () => ({ current, queue, index, isPlaying, progress, duration, volume, playQueue, togglePlay, next, prev, seek, setVolume }),
-    [current, queue, index, isPlaying, progress, duration, volume, playQueue, togglePlay, next, prev, seek, setVolume],
+    () => ({ current, queue, index, isPlaying, progress, duration, volume, playQueue, togglePlay, next, prev, seek, setVolume, addToQueue, playNext, removeFromQueue, clearQueue, jumpTo, reorder }),
+    [current, queue, index, isPlaying, progress, duration, volume, playQueue, togglePlay, next, prev, seek, setVolume, addToQueue, playNext, removeFromQueue, clearQueue, jumpTo, reorder],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
