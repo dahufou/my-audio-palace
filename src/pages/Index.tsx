@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, type AlbumSummary, type ArtistSummary } from "@/lib/aurum";
-import { ImageOff, Disc3, Mic2, Music2, ChevronRight } from "lucide-react";
+import { Disc3, Mic2, Music2, ChevronRight } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;

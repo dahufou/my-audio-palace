@@ -2,7 +2,8 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum } from "@/lib/aurum";
-import { ArrowLeft, ImageOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 
 const LibraryArtistPage = () => {
   const { id = "" } = useParams<{ id: string }>();

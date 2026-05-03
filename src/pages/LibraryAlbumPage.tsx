@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, formatDuration, type TrackRow, type AlbumDetail } from "@/lib/aurum";
-import { ImageOff, ArrowLeft, Play, Pause, Disc3, Clock3, Music2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Disc3, Clock3, Music2 } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 import { usePlayer } from "@/context/PlayerContext";
 
 const toNum = (v: string | number | null | undefined): number => {
