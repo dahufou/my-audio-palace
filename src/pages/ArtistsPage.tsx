@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, type ArtistSummary } from "@/lib/aurum";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fetchArtistImage, getCachedArtistImage } from "@/lib/artistImages";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;
