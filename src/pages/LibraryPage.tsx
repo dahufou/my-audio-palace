@@ -122,21 +122,13 @@ function LiveAlbumCard({ album }: { album: AlbumSummary }) {
   return (
     <Link to={`/library/album/${album.id}`} className="group block animate-fade-up">
       <div className="relative aspect-square overflow-hidden rounded-sm shadow-album bg-muted">
-        {album.has_cover ? (
-          <img
-            src={aurum.coverUrl(album.id)}
-            alt={`${album.title} by ${album.artist_name}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-            <ImageOff className="h-6 w-6" />
-          </div>
-        )}
+        <AlbumCover
+          albumId={album.id}
+          artistName={album.artist_name}
+          title={album.title}
+          hasCover={album.has_cover}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+        />
       </div>
       <div className="mt-2">
         <div className="text-[13px] font-medium leading-tight line-clamp-1">{album.title}</div>
