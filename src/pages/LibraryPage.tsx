@@ -92,19 +92,19 @@ const LibraryPage = () => {
         </div>
 
         {albums.isLoading && (
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-            {Array.from({ length: 12 }).map((_, i) => (
+          <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10 gap-x-3 gap-y-6">
+            {Array.from({ length: 24 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square bg-muted rounded-sm" />
-                <div className="h-4 bg-muted mt-3 w-3/4 rounded-sm" />
-                <div className="h-3 bg-muted mt-2 w-1/2 rounded-sm" />
+                <div className="h-3 bg-muted mt-2 w-3/4 rounded-sm" />
+                <div className="h-2.5 bg-muted mt-1.5 w-1/2 rounded-sm" />
               </div>
             ))}
           </div>
         )}
 
         {albums.data && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10 mt-10">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10 gap-x-3 gap-y-6 mt-10">
             {albums.data.items.map((a) => (
               <LiveAlbumCard key={a.id} album={a} />
             ))}
@@ -127,20 +127,20 @@ function LiveAlbumCard({ album }: { album: AlbumSummary }) {
             src={aurum.coverUrl(album.id)}
             alt={`${album.title} by ${album.artist_name}`}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-            <ImageOff className="h-8 w-8" />
+            <ImageOff className="h-6 w-6" />
           </div>
         )}
       </div>
-      <div className="mt-3">
-        <div className="font-display text-lg leading-tight line-clamp-1">{album.title}</div>
-        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+      <div className="mt-2">
+        <div className="text-[13px] font-medium leading-tight line-clamp-1">{album.title}</div>
+        <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
           {album.artist_name}
           {album.year ? <> · <span className="text-muted-foreground/70">{album.year}</span></> : null}
         </div>
