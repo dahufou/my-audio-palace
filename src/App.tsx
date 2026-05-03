@@ -7,6 +7,9 @@ import { PlayerProvider } from "@/context/PlayerContext";
 import Index from "./pages/Index.tsx";
 import AlbumsPage from "./pages/AlbumsPage.tsx";
 import AlbumPage from "./pages/AlbumPage.tsx";
+import LibraryPage from "./pages/LibraryPage.tsx";
+import LibraryAlbumPage from "./pages/LibraryAlbumPage.tsx";
+import LibraryArtistPage from "./pages/LibraryArtistPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
