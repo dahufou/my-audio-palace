@@ -2,7 +2,8 @@ import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum } from "@/lib/aurum";
-import { ArrowLeft, ImageOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 
 const LibraryArtistPage = () => {
   const { id = "" } = useParams<{ id: string }>();
@@ -40,18 +41,14 @@ const LibraryArtistPage = () => {
                   className="group block animate-fade-up"
                 >
                   <div className="relative aspect-square overflow-hidden rounded-sm shadow-album bg-muted">
-                    {al.has_cover ? (
-                      <img
-                        src={aurum.coverUrl(al.id)}
-                        alt={al.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                        <ImageOff className="h-8 w-8" />
-                      </div>
-                    )}
+                    <AlbumCover
+                      albumId={al.id}
+                      artistName={artist.data.name}
+                      title={al.title}
+                      hasCover={al.has_cover}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      iconClassName="h-8 w-8"
+                    />
                   </div>
                   <div className="mt-3">
                     <div className="font-display text-lg leading-tight line-clamp-1">{al.title}</div>

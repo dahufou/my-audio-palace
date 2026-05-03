@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, type AlbumSummary, type ArtistSummary } from "@/lib/aurum";
-import { ImageOff, Disc3, Mic2, Music2, ChevronRight } from "lucide-react";
+import { Disc3, Mic2, Music2, ChevronRight } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;
@@ -194,18 +195,13 @@ function RecentAlbumCard({ album }: { album: AlbumSummary }) {
       className="group shrink-0 w-36 snap-start animate-fade-up"
     >
       <div className="relative aspect-square overflow-hidden rounded-sm shadow-album bg-muted">
-        {album.has_cover ? (
-          <img
-            src={aurum.coverUrl(album.id)}
-            alt={`${album.title} — ${album.artist_name}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-            <ImageOff className="h-6 w-6" />
-          </div>
-        )}
+        <AlbumCover
+          albumId={album.id}
+          artistName={album.artist_name}
+          title={album.title}
+          hasCover={album.has_cover}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+        />
       </div>
       <div className="mt-2">
         <div className="text-[13px] font-medium leading-tight line-clamp-1">{album.title}</div>
