@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, type ArtistSummary } from "@/lib/aurum";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { fetchArtistImage, getCachedArtistImage } from "@/lib/artistImages";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;
@@ -155,21 +154,11 @@ function ArtistTile({ artist }: { artist: ArtistSummary }) {
   const hue = hueFromId(artist.id);
   const bg = `linear-gradient(135deg, hsl(${hue} 45% 22%) 0%, hsl(${(hue + 40) % 360} 55% 14%) 100%)`;
 
-  const initial = getCachedArtistImage(artist.name);
-  const [img, setImg] = useState<string | null | undefined>(initial);
+  // L'image vient directement du serveur Aurum (cache DB + cascade serveur).
+  // Si 404 / erreur réseau → onError → fallback initiales.
+  const [imgFailed, setImgFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (img === undefined) {
-      fetchArtistImage(artist.name).then((url) => {
-        if (!cancelled) setImg(url);
-      });
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [artist.name, img]);
+  const src = aurum.artistImageUrl(artist.id);
 
   return (
     <Link
@@ -180,18 +169,20 @@ function ArtistTile({ artist }: { artist: ArtistSummary }) {
         className="relative aspect-square overflow-hidden rounded-full bg-muted shadow-album mx-auto transition-transform duration-500 group-hover:scale-[1.04]"
         style={{ background: bg }}
       >
-        {img ? (
+        {!imgFailed && (
           <img
-            src={img}
+            src={src}
             alt={artist.name}
             loading="lazy"
+            decoding="async"
             onLoad={() => setLoaded(true)}
+            onError={() => setImgFailed(true)}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
               loaded ? "opacity-100" : "opacity-0"
             }`}
           />
-        ) : null}
-        {(!img || !loaded) && (
+        )}
+        {(imgFailed || !loaded) && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span
               className="font-display text-2xl md:text-3xl"
