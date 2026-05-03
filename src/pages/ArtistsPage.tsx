@@ -155,6 +155,22 @@ function ArtistTile({ artist }: { artist: ArtistSummary }) {
   const hue = hueFromId(artist.id);
   const bg = `linear-gradient(135deg, hsl(${hue} 45% 22%) 0%, hsl(${(hue + 40) % 360} 55% 14%) 100%)`;
 
+  const initial = getCachedArtistImage(artist.name);
+  const [img, setImg] = useState<string | null | undefined>(initial);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (img === undefined) {
+      fetchArtistImage(artist.name).then((url) => {
+        if (!cancelled) setImg(url);
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [artist.name, img]);
+
   return (
     <Link
       to={`/library/artist/${artist.id}`}
@@ -164,14 +180,27 @@ function ArtistTile({ artist }: { artist: ArtistSummary }) {
         className="relative aspect-square overflow-hidden rounded-full bg-muted shadow-album mx-auto transition-transform duration-500 group-hover:scale-[1.04]"
         style={{ background: bg }}
       >
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span
-            className="font-display text-2xl md:text-3xl"
-            style={{ color: `hsl(${hue} 60% 88%)` }}
-          >
-            {initials(artist.name)}
-          </span>
-        </div>
+        {img ? (
+          <img
+            src={img}
+            alt={artist.name}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+              loaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ) : null}
+        {(!img || !loaded) && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span
+              className="font-display text-2xl md:text-3xl"
+              style={{ color: `hsl(${hue} 60% 88%)` }}
+            >
+              {initials(artist.name)}
+            </span>
+          </div>
+        )}
         <div
           className="absolute inset-0 rounded-full ring-1 ring-inset transition-colors"
           style={{ borderColor: `hsl(${hue} 60% 60% / 0.25)` }}
