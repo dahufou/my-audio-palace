@@ -11,6 +11,7 @@ import LibraryPage from "./pages/LibraryPage.tsx";
 import LibraryAlbumPage from "./pages/LibraryAlbumPage.tsx";
 import LibraryArtistPage from "./pages/LibraryArtistPage.tsx";
 import ArtistsPage from "./pages/ArtistsPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/library/album/:id" element={<LibraryAlbumPage />} />
             <Route path="/library/artist/:id" element={<LibraryArtistPage />} />
             <Route path="/artists" element={<ArtistsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
