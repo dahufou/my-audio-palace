@@ -43,21 +43,63 @@ aurum-server/
 ├── tsconfig.json
 ├── .env.example
 ├── systemd/aurum.service
-├── sql/001_init.sql        # Schéma DB (étape B)
+├── sql/001_init.sql        # Schéma DB (artists/albums/tracks/...)
 ├── src/
 │   ├── index.ts            # Entrée Fastify
 │   ├── config.ts           # Chargement env
-│   ├── db.ts               # Pool pg
+│   ├── db.ts               # Pool pg + runMigrations()
 │   ├── log.ts              # Pino
+│   ├── cli/scan.ts         # `npm run scan`
+│   ├── scanner/
+│   │   ├── scan.ts         # Walk + music-metadata + covers
+│   │   └── watcher.ts      # chokidar (temps réel)
 │   └── routes/
-│       └── health.ts       # /health
+│       ├── health.ts       # /health
+│       └── library.ts      # /library/*, /covers/:id
 └── README.md
 ```
 
-Les étapes suivantes ajouteront : scanner, routes library/stream/zones, WS, Chromecast, UPnP.
+## API actuelle
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/health` | Statut serveur + DB |
+| `GET` | `/library/stats` | Compteurs artists/albums/tracks |
+| `GET` | `/library/artists?q=&limit=&offset=` | Liste / recherche artistes |
+| `GET` | `/library/artists/:id` | Détail artiste + ses albums |
+| `GET` | `/library/albums?q=&limit=&offset=` | Liste / recherche albums |
+| `GET` | `/library/albums/:id` | Détail album + ses pistes |
+| `GET` | `/library/tracks/:id` | Détail piste |
+| `GET` | `/library/search?q=` | Recherche globale |
+| `GET` | `/covers/:albumId` | Cover de l'album (avec ETag + cache) |
+| `POST` | `/library/scan` | Lance un re-scan (header `X-Bridge-Token`) |
+
+## Scan de la bibliothèque
+
+Le **watcher chokidar** tourne en permanence dans le service et indexe en temps réel les
+ajouts / modifications / suppressions dans `MUSIC_PATH`.
+
+Pour un **scan complet** manuel (ex: première fois) :
+
+```bash
+sudo -u aurum bash -lc 'cd /opt/aurum && set -a && . /etc/aurum/aurum.env && set +a && npm run scan'
+```
+
+Ou via API (depuis le LXC) :
+
+```bash
+TOKEN=$(sudo grep ^BRIDGE_TOKEN /etc/aurum/aurum.env | cut -d= -f2)
+curl -X POST -H "X-Bridge-Token: $TOKEN" http://127.0.0.1:4477/library/scan
+```
+
+### Pochettes d'album
+
+Priorité : `cover.jpg` / `folder.jpg` / `front.jpg` (jpg/png/webp) **dans le dossier de l'album**.
+Sinon, on extrait la cover embarquée dans les tags vers `/var/cache/aurum/covers/<albumId>.<ext>`.
 
 ## Accès distant
 
 Une fois Aurum Server qui tourne et écoute sur `127.0.0.1:4477`, tu installeras
 **Cloudflare Tunnel** sur le LXC pour exposer `aurum.<ton-domaine>` en HTTPS,
 sans ouvrir de port sur ton routeur.
+
