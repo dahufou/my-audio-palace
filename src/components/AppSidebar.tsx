@@ -79,7 +79,7 @@ export function AppSidebar() {
         <SidebarGroup>
           {!collapsed && (
             <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground px-3">
-              You
+              Vous
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
