@@ -25,6 +25,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/albums" element={<AlbumsPage />} />
             <Route path="/album/:id" element={<AlbumPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+            <Route path="/library/album/:id" element={<LibraryAlbumPage />} />
+            <Route path="/library/artist/:id" element={<LibraryArtistPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
