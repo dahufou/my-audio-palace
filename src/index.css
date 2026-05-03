@@ -162,6 +162,20 @@
   }
 }
 
+/* Density (driven by SettingsApplier → data-density on <html>) */
+html[data-density="compact"] body { font-size: 0.94em; }
+html[data-density="compact"] main { --aurum-row-py: 0.3rem; }
+
+/* Reduced motion override */
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 @keyframes equalizer-1 { 0%, 100% { height: 30%; } 50% { height: 100%; } }
 @keyframes equalizer-2 { 0%, 100% { height: 80%; } 50% { height: 40%; } }
 @keyframes equalizer-3 { 0%, 100% { height: 50%; } 50% { height: 90%; } }

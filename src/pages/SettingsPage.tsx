@@ -37,6 +37,9 @@ import {
   Upload,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getAurumBase } from "@/lib/aurum";
+import { clearHistory } from "@/lib/listeningHistory";
+import { clearAllPositions } from "@/lib/positions";
 
 const Row = ({
   label,
@@ -440,8 +443,21 @@ export default function SettingsPage() {
                   <Slider value={[settings.maxCacheGb]} min={0} max={200} step={1} onValueChange={([v]) => set("maxCacheGb")(v)} />
                 </div>
               </Row>
-              <Row label="Vider le cache local">
-                <Button variant="outline" size="sm" onClick={() => toast.success("Cache vidé")}>
+              <Row label="Vider le cache local" hint="Efface positions de lecture mémorisées et caches navigateur Aurum.">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    clearAllPositions();
+                    try {
+                      if ("caches" in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map((k) => caches.delete(k)));
+                      }
+                    } catch {}
+                    toast.success("Cache vidé");
+                  }}
+                >
                   Effacer
                 </Button>
               </Row>
@@ -508,8 +524,26 @@ export default function SettingsPage() {
                   </SelectContent>
                 </Select>
               </Row>
-              <Row label="Lancer un re-scan complet">
-                <Button variant="outline" size="sm" onClick={() => toast.info("Scan déclenché")}>
+              <Row label="Lancer un re-scan complet" hint="Déclenche un scan côté serveur Aurum.">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${getAurumBase()}/library/scan`, {
+                        method: "POST",
+                      });
+                      if (res.status === 401) {
+                        toast.error("Scan refusé : token requis côté serveur.");
+                        return;
+                      }
+                      if (!res.ok) throw new Error(String(res.status));
+                      toast.success("Scan démarré");
+                    } catch (err) {
+                      toast.error("Échec du scan");
+                    }
+                  }}
+                >
                   Scanner maintenant
                 </Button>
               </Row>
@@ -626,13 +660,27 @@ export default function SettingsPage() {
           {/* NOTIFICATIONS / SHORTCUTS */}
           <TabsContent value="shortcuts" className="mt-6 space-y-6">
             <Section title="Notifications">
-              <Row label="Notifications système">
-                <Switch checked={settings.showOsNotifications} onCheckedChange={set("showOsNotifications")} />
+              <Row label="Notifications système" hint="Demande la permission au navigateur si nécessaire.">
+                <Switch
+                  checked={settings.showOsNotifications}
+                  onCheckedChange={async (v) => {
+                    set("showOsNotifications")(v);
+                    if (v && "Notification" in window && Notification.permission === "default") {
+                      const res = await Notification.requestPermission();
+                      if (res !== "granted") {
+                        toast.error("Permission refusée par le navigateur");
+                        set("showOsNotifications")(false);
+                      } else {
+                        toast.success("Notifications activées");
+                      }
+                    }
+                  }}
+                />
               </Row>
               <Row label="Notifier au changement de titre">
                 <Switch checked={settings.notifyOnTrackChange} onCheckedChange={set("notifyOnTrackChange")} />
               </Row>
-              <Row label="Touches média du clavier">
+              <Row label="Touches média du clavier" hint="Play/pause/next/prev sur clavier multimédia ou Bluetooth.">
                 <Switch checked={settings.mediaKeysEnabled} onCheckedChange={set("mediaKeysEnabled")} />
               </Row>
             </Section>
@@ -668,7 +716,7 @@ export default function SettingsPage() {
                 <Switch checked={settings.saveListeningHistory} onCheckedChange={set("saveListeningHistory")} />
               </Row>
               <Row label="Effacer l'historique d'écoute">
-                <Button variant="outline" size="sm" onClick={() => toast.success("Historique effacé")}>
+                <Button variant="outline" size="sm" onClick={() => { clearHistory(); toast.success("Historique effacé"); }}>
                   Effacer
                 </Button>
               </Row>
