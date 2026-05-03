@@ -194,18 +194,13 @@ function RecentAlbumCard({ album }: { album: AlbumSummary }) {
       className="group shrink-0 w-36 snap-start animate-fade-up"
     >
       <div className="relative aspect-square overflow-hidden rounded-sm shadow-album bg-muted">
-        {album.has_cover ? (
-          <img
-            src={aurum.coverUrl(album.id)}
-            alt={`${album.title} — ${album.artist_name}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-            <ImageOff className="h-6 w-6" />
-          </div>
-        )}
+        <AlbumCover
+          albumId={album.id}
+          artistName={album.artist_name}
+          title={album.title}
+          hasCover={album.has_cover}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+        />
       </div>
       <div className="mt-2">
         <div className="text-[13px] font-medium leading-tight line-clamp-1">{album.title}</div>

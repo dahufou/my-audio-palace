@@ -5,7 +5,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { aurum, getAurumBase, setAurumBase, type AlbumSummary } from "@/lib/aurum";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ImageOff, Search, Server } from "lucide-react";
+import { Search, Server } from "lucide-react";
+import { AlbumCover } from "@/components/AlbumCover";
 
 const LibraryPage = () => {
   const [q, setQ] = useState("");

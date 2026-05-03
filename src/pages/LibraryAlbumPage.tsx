@@ -159,17 +159,14 @@ const LibraryAlbumPage = () => {
                       "0 30px 80px -20px hsl(var(--indigo-deep) / 0.9), 0 0 0 1px hsl(var(--indigo-bright) / 0.15)",
                   }}
                 >
-                  {data.has_cover ? (
-                    <img
-                      src={aurum.coverUrl(data.id)}
-                      alt={data.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                      <ImageOff className="h-10 w-10" />
-                    </div>
-                  )}
+                  <AlbumCover
+                    albumId={data.id}
+                    artistName={data.artist_name}
+                    title={data.title}
+                    hasCover={data.has_cover}
+                    className="h-full w-full object-cover"
+                    iconClassName="h-10 w-10"
+                  />
                 </div>
 
                 <div className="flex flex-col justify-end min-w-0 flex-1">
