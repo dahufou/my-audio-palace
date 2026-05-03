@@ -188,4 +188,72 @@ export async function libraryRoutes(app: FastifyInstance) {
       return reply.code(404).send({ error: "cover_missing" });
     }
   });
+
+  // ---- Audio streaming (HTTP Range) --------------------------------------
+  app.get("/stream/:trackId", async (req, reply) => {
+    const { trackId } = req.params as { trackId: string };
+    const r = await query<{ file_path: string; container: string | null; codec: string | null }>(
+      `select file_path, container, codec from tracks where id = $1`,
+      [trackId],
+    );
+    const row = r.rows[0];
+    if (!row?.file_path) return reply.code(404).send({ error: "not_found" });
+
+    let st;
+    try {
+      st = await stat(row.file_path);
+    } catch {
+      return reply.code(404).send({ error: "file_missing" });
+    }
+
+    const size = st.size;
+    const mime = guessAudioMime(row.container, row.codec, row.file_path);
+    const etag = `"${size.toString(16)}-${Math.floor(st.mtimeMs).toString(16)}"`;
+
+    if (req.headers["if-none-match"] === etag) {
+      return reply.code(304).send();
+    }
+
+    const range = req.headers.range;
+    reply
+      .header("Accept-Ranges", "bytes")
+      .header("Content-Type", mime)
+      .header("ETag", etag)
+      .header("Cache-Control", "private, max-age=0");
+
+    if (!range) {
+      reply.header("Content-Length", String(size));
+      return reply.send(createReadStream(row.file_path));
+    }
+
+    // Parse "bytes=start-end"
+    const m = /^bytes=(\d*)-(\d*)$/.exec(range);
+    if (!m) {
+      return reply.code(416).header("Content-Range", `bytes */${size}`).send();
+    }
+    let start = m[1] ? parseInt(m[1], 10) : 0;
+    let end   = m[2] ? parseInt(m[2], 10) : size - 1;
+    if (Number.isNaN(start) || Number.isNaN(end) || start > end || end >= size) {
+      return reply.code(416).header("Content-Range", `bytes */${size}`).send();
+    }
+    const chunk = end - start + 1;
+    reply
+      .code(206)
+      .header("Content-Range", `bytes ${start}-${end}/${size}`)
+      .header("Content-Length", String(chunk));
+    return reply.send(createReadStream(row.file_path, { start, end }));
+  });
+}
+
+function guessAudioMime(container: string | null, codec: string | null, path: string): string {
+  const ext = (path.split(".").pop() || "").toLowerCase();
+  const c = (container || codec || ext || "").toLowerCase();
+  if (c.includes("flac")) return "audio/flac";
+  if (c.includes("mp3")) return "audio/mpeg";
+  if (c.includes("opus")) return "audio/ogg";
+  if (c.includes("ogg") || c.includes("vorbis")) return "audio/ogg";
+  if (c.includes("alac") || c === "m4a" || c.includes("aac") || c.includes("mp4")) return "audio/mp4";
+  if (c.includes("wav")) return "audio/wav";
+  if (c.includes("aiff")) return "audio/aiff";
+  return "application/octet-stream";
 }
