@@ -61,6 +61,14 @@
     --shadow-album: 0 18px 50px -16px hsl(0 0% 0% / 0.8), 0 0 0 1px hsl(42 20% 18% / 0.6);
 
     --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Midnight Indigo accent (audiophile player) */
+    --indigo-deep: 240 60% 7%;        /* #0a0a1a */
+    --indigo-mid: 240 50% 14%;        /* #141432 */
+    --indigo-rich: 240 50% 24%;       /* #1e1e5a */
+    --indigo-bright: 243 75% 59%;     /* #4f46e5 */
+    --gradient-indigo: linear-gradient(135deg, hsl(var(--indigo-rich)) 0%, hsl(var(--indigo-bright)) 100%);
+    --gradient-indigo-veil: linear-gradient(180deg, hsl(var(--indigo-deep) / 0.92) 0%, hsl(0 0% 5%) 70%);
   }
 
   .dark {
