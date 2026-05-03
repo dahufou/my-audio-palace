@@ -102,6 +102,8 @@ export const aurum = {
   },
   album: (id: string) => get<AlbumDetail>(`/library/albums/${id}`),
   coverUrl: (albumId: string) => `${getAurumBase()}/covers/${albumId}`,
+  externalCoverUrl: (albumId: string) => `${getAurumBase()}/albums/${albumId}/external-cover`,
+  artistImageUrl: (artistId: string) => `${getAurumBase()}/artists/${artistId}/image`,
   streamUrl: (trackId: string) => `${getAurumBase()}/stream/${trackId}`,
 };
 
