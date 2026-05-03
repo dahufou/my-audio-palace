@@ -1,7 +1,7 @@
 // Client API pour le serveur Aurum (LXC).
 // Modifiable via VITE_AURUM_BASE_URL ou localStorage("aurum_base_url").
 
-const DEFAULT_BASE = "http://192.168.1.45:4477";
+const DEFAULT_BASE = "https://dahufou-aurum.duckdns.org";
 
 export function getAurumBase(): string {
   if (typeof window !== "undefined") {
