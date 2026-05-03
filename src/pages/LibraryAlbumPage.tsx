@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { aurum, formatDuration, type TrackRow, type AlbumDetail } from "@/lib/aurum";
-import { ArrowLeft, Play, Pause, Disc3, Clock3, Music2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Disc3, Clock3, Music2, Heart, ListPlus } from "lucide-react";
 import { AlbumCover } from "@/components/AlbumCover";
 import { usePlayer } from "@/context/PlayerContext";
+import { useFavourites } from "@/lib/favourites";
 
 const toNum = (v: string | number | null | undefined): number => {
   if (v == null) return 0;
@@ -51,6 +52,7 @@ const LibraryAlbumPage = () => {
   });
 
   const player = usePlayer();
+  const fav = useFavourites();
 
   const data = album.data;
 
@@ -219,6 +221,22 @@ const LibraryAlbumPage = () => {
                     >
                       <Play className="h-4 w-4 fill-current" />
                       Lire l'album
+                    </button>
+                    <button
+                      onClick={() => data && player.addToQueue(data.tracks.map((t) => trackToPlayable(t, data)))}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-sm border border-border text-sm hover:bg-accent transition-colors"
+                    >
+                      <ListPlus className="h-4 w-4" />
+                      Ajouter à la file
+                    </button>
+                    <button
+                      onClick={() => data && fav.toggle("album", data.id)}
+                      className="inline-flex items-center gap-2 px-3 py-2.5 rounded-sm border border-border hover:bg-accent transition-colors"
+                      aria-label="Favori"
+                    >
+                      <Heart
+                        className={`h-4 w-4 ${data && fav.isFav("album", data.id) ? "fill-current text-destructive" : ""}`}
+                      />
                     </button>
                   </div>
                 </div>

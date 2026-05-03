@@ -12,6 +12,8 @@ import LibraryAlbumPage from "./pages/LibraryAlbumPage.tsx";
 import LibraryArtistPage from "./pages/LibraryArtistPage.tsx";
 import ArtistsPage from "./pages/ArtistsPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import FavouritesPage from "./pages/FavouritesPage.tsx";
+import QueuePage from "./pages/QueuePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/library/artist/:id" element={<LibraryArtistPage />} />
             <Route path="/artists" element={<ArtistsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/favourites" element={<FavouritesPage />} />
+            <Route path="/queue" element={<QueuePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
