@@ -10,6 +10,7 @@ import AlbumPage from "./pages/AlbumPage.tsx";
 import LibraryPage from "./pages/LibraryPage.tsx";
 import LibraryAlbumPage from "./pages/LibraryAlbumPage.tsx";
 import LibraryArtistPage from "./pages/LibraryArtistPage.tsx";
+import ArtistsPage from "./pages/ArtistsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
