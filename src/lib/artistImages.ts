@@ -3,8 +3,11 @@
 // Toutes ces APIs sont gratuites, sans clé, et CORS-friendly.
 //
 // Cache : localStorage avec TTL (30j succès, 7j échec). Déduplication des
-// requêtes en vol. (TODO: ajouter un endpoint /artists/:id/image côté Aurum
-// pour partager le cache entre appareils.)
+// requêtes en vol. Throttling par source via lib/rateLimit.
+// (TODO: ajouter un endpoint /artists/:id/image côté Aurum pour partager
+// le cache entre appareils.)
+
+import { mbLimiter, itunesLimiter, deezerLimiter } from "@/lib/rateLimit";
 
 const CACHE_KEY = "aurum_artist_images_v2";
 const TTL_OK = 1000 * 60 * 60 * 24 * 30; // 30 jours
