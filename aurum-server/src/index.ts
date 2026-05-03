@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { log } from "./log.js";
 import { healthRoutes } from "./routes/health.js";
 import { libraryRoutes } from "./routes/library.js";
+import { imageRoutes } from "./routes/images.js";
 import { runMigrations } from "./db.js";
 import { ensureCoversDir } from "./scanner/scan.js";
 import { startWatcher, stopWatcher } from "./scanner/watcher.js";
@@ -18,6 +19,7 @@ async function main() {
 
   await app.register(healthRoutes);
   await app.register(libraryRoutes);
+  await app.register(imageRoutes);
 
   app.get("/", async () => ({
     name: "aurum-server",
