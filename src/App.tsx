@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { SettingsApplier } from "@/components/SettingsApplier";
 import Index from "./pages/Index.tsx";
 import AlbumsPage from "./pages/AlbumsPage.tsx";
 import AlbumPage from "./pages/AlbumPage.tsx";
@@ -23,6 +24,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <SettingsApplier />
       <PlayerProvider>
         <BrowserRouter>
           <Routes>
